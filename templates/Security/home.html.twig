@@ -1,0 +1,233 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+        }
+        .feature-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2rem;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-4">
+                        Votre banque<br>
+                        <span class="text-warning">digitale</span> et sécurisée
+                    </h1>
+                    <p class="lead mb-4 opacity-75">
+                        Gérez vos finances en toute simplicité avec notre plateforme bancaire innovante.
+                        Ouverture de compte en 5 minutes, transactions instantanées et sécurité maximale.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{{ path('app_login') }}" class="btn btn-light btn-lg px-4">
+                            <i class="fas fa-sign-in-alt me-2"></i> Se connecter
+                        </a>
+                        <a href="{{ path('app_register') }}" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-user-plus me-2"></i> Ouvrir un compte
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
+                         alt="Banking App" class="img-fluid rounded-3 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="h1 fw-bold mb-3">Pourquoi nous choisir ?</h2>
+                <p class="lead text-muted">Des services bancaires modernes et accessibles</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4 class="mb-3">Rapide & Simple</h4>
+                        <p class="text-muted">
+                            Ouverture de compte en 5 minutes, transactions instantanées,
+                            interface intuitive.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4 class="mb-3">Sécurisé</h4>
+                        <p class="text-muted">
+                            Cryptage bancaire, authentification à deux facteurs,
+                            surveillance 24/7.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h4 class="mb-3">Support Premium</h4>
+                        <p class="text-muted">
+                            Assistance 7j/7, conseillers dédiés,
+                            résolution rapide.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="h1 fw-bold mb-3">Ce que disent nos clients</h2>
+                <p class="lead text-muted">Rejoignez des milliers de clients satisfaits</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-3x text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Marie D.</h5>
+                                <small class="text-muted">Client depuis 2 ans</small>
+                            </div>
+                        </div>
+                        <p class="text-muted">
+                            "L'application est incroyablement simple à utiliser. 
+                            Je gère toutes mes finances depuis mon téléphone."
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-3x text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Pierre M.</h5>
+                                <small class="text-muted">Entrepreneur</small>
+                            </div>
+                        </div>
+                        <p class="text-muted">
+                            "Le support client est exceptionnel. 
+                            Ils ont répondu à toutes mes questions en moins de 10 minutes."
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-3x text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Sophie L.</h5>
+                                <small class="text-muted">Freelance</small>
+                            </div>
+                        </div>
+                        <p class="text-muted">
+                            "Les frais sont transparents et bien inférieurs 
+                            à ceux de ma banque traditionnelle."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="card border-0 shadow-lg bg-primary text-white">
+                <div class="card-body p-5 text-center">
+                    <h2 class="display-6 fw-bold mb-3">Prêt à commencer ?</h2>
+                    <p class="lead opacity-75 mb-4">
+                        Rejoignez la révolution bancaire. Simple, sécurisé, accessible.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ path('app_register') }}" class="btn btn-light btn-lg px-4">
+                            <i class="fas fa-rocket me-2"></i> Commencer gratuitement
+                        </a>
+                        <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-sign-in-alt me-2"></i> Se connecter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

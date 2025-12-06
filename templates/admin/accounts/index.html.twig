@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tous les Comptes • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold mb-1">
+                <i class="fas fa-wallet text-primary me-2"></i>Tous les Comptes
+            </h1>
+            <p class="text-muted mb-0">{{ accounts|length }} compte(s) bancaire(s)</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i> Retour
+            </a>
+            <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#searchModal">
+                <i class="fas fa-search me-2"></i> Rechercher
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rechercher un compte</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ path('admin_accounts') }}" method="get" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control" placeholder="Numéro de compte, nom client, email...">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Numéro de compte</th>
+                            <th>Client</th>
+                            <th>Type</th>
+                            <th>Solde</th>
+                            <th>Découvert</th>
+                            <th>Statut</th>
+                            <th>Créé le</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in accounts %}
+                        <tr>
+                            <td>
+                                <strong>{{ account.accountNumber }}</strong>
+                                <div class="small text-muted">ID: #{{ account.id }}</div>
+                            </td>
+                            <td>
+                                <a href="{{ path('admin_client_show', {'id': account.client.id}) }}" 
+                                   class="text-decoration-none">
+                                    <strong>{{ account.client.firstName }} {{ account.client.lastName }}</strong>
+                                </a>
+                                <div class="small text-muted">{{ account.client.email }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ account.typeLabel }}</span>
+                            </td>
+                            <td class="{{ account.balance >= 0 ? 'text-success' : 'text-danger' }} fw-bold">
+                                {{ account.balance|number_format(2, ',', ' ') }} €
+                            </td>
+                            <td>{{ account.overdraftLimit|number_format(2, ',', ' ') }} €</td>
+                            <td>
+                                <span class="badge {{ account.isActive ? 'bg-success' : 'bg-danger' }} status-badge">
+                                    {{ account.isActive ? 'Actif' : 'Inactif' }}
+                                </span>
+                            </td>
+                            <td>{{ account.createdAt|date('d/m/Y') }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm action-buttons">
+                                    <a href="{{ path('admin_account_show', {'id': account.id}) }}" 
+                                       class="btn btn-outline-primary" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_account_edit', {'id': account.id}) }}" 
+                                       class="btn btn-outline-warning" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
+                                    <!-- Toggle Status Form -->
+                                    <form method="post" 
+                                          action="{{ path('admin_account_toggle_status', {'id': account.id}) }}" 
+                                          class="d-inline"
+                                          onsubmit="return confirm('{{ account.isActive ? 'Désactiver' : 'Activer' }} ce compte ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-status' ~ account.id) }}">
+                                        <button type="submit" class="btn {{ account.isActive ? 'btn-outline-warning' : 'btn-outline-success' }}" 
+                                                title="{{ account.isActive ? 'Désactiver' : 'Activer' }}">
+                                            <i class="fas {{ account.isActive ? 'fa-ban' : 'fa-check' }}"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <!-- Delete Form -->
+                                    <form method="post" 
+                                          action="{{ path('admin_account_delete', {'id': account.id}) }}" 
+                                          class="d-inline"
+                                          onsubmit="return confirm('Supprimer définitivement ce compte ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ account.id) }}">
+                                        <button type="submit" class="btn btn-outline-danger" title="Supprimer"
+                                                {% if account.balance != 0 %}disabled title="Impossible de supprimer un compte avec solde non nul"{% endif %}>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Aucun compte trouvé</h5>
+                                <p class="text-muted">Aucun compte bancaire n'a été créé pour le moment.</p>
+                                <a href="{{ path('admin_clients') }}" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i> Voir les clients
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

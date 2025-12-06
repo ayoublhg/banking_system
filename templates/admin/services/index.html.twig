@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Services • Banking System{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold mb-1">
+                <i class="fas fa-cogs text-primary me-2"></i>Services bancaires
+            </h1>
+            <p class="text-muted mb-0">Gérez les services proposés aux clients</p>
+        </div>
+        <a href="{{ path('admin_service_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i> Nouveau service
+        </a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            {% if services|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nom</th>
+                                <th>Description</th>
+                                <th>Prix</th>
+                                <th>Statut</th>
+                                <th>Créé le</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for service in services %}
+                            <tr>
+                                <td>
+                                    <strong>{{ service.name }}</strong>
+                                    {% if service.image %}
+                                        <img src="{{ vich_uploader_asset(service, 'imageFile') }}" 
+                                             alt="{{ service.name }}" 
+                                             class="img-thumbnail ms-2" 
+                                             style="width: 40px; height: 40px;">
+                                    {% endif %}
+                                </td>
+                                <td>{{ service.description|slice(0, 50) }}...</td>
+                                <td>
+                                    <span class="badge bg-info">{{ service.price }} €</span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ service.isActive ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ service.isActive ? 'Actif' : 'Inactif' }}
+                                    </span>
+                                </td>
+                                <td>{{ service.createdAt|date('d/m/Y') }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ path('admin_service_edit', {'id': service.id}) }}" 
+                                           class="btn btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" 
+                                              action="{{ path('admin_service_delete', {'id': service.id}) }}" 
+                                              onsubmit="return confirm('Supprimer ce service ?');"
+                                              class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-cogs fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucun service disponible</h4>
+                    <p class="text-muted mb-4">Commencez par créer votre premier service bancaire.</p>
+                    <a href="{{ path('admin_service_new') }}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i> Créer un service
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

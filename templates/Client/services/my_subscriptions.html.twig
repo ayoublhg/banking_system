@@ -1,0 +1,144 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Abonnements • Banking System{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('client_services') }}">Services</a></li>
+            <li class="breadcrumb-item active">Mes Abonnements</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">
+                <i class="fas fa-list-check text-primary me-2"></i>Mes Abonnements
+            </h1>
+            <p class="text-muted">Gérez vos services bancaires</p>
+        </div>
+        <div class="col-auto">
+            <a href="{{ path('client_services') }}" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-1"></i> Voir tous les services
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bell me-2"></i>Services actifs
+                        <span class="badge bg-primary ms-2">{{ client.subscribedServices|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if client.subscribedServices|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Description</th>
+                                        <th>Prix mensuel</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for service in client.subscribedServices %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ service.name }}</strong>
+                                            </td>
+                                            <td>{{ service.description|length > 50 ? service.description|slice(0, 50) ~ '...' : service.description }}</td>
+                                            <td>
+                                                {% if service.price > 0 %}
+                                                    <span class="text-primary">{{ service.price|number_format(2, ',', ' ') }} €</span>
+                                                {% else %}
+                                                    <span class="text-success">Gratuit</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Actif</span>
+                                            </td>
+                                            <td>
+                                                <form action="{{ path('client_service_unsubscribe', {'id': service.id}) }}" 
+                                                      method="POST" 
+                                                      class="d-inline">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('unsubscribe' ~ service.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-times me-1"></i> Désabonner
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6 class="text-primary">
+                                <i class="fas fa-euro-sign me-1"></i>
+                                Total mensuel : 
+                                <strong>
+                                    {{ client.subscribedServices|reduce((total, service) => total + service.price, 0)|number_format(2, ',', ' ') }} €
+                                </strong>
+                            </h6>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Aucun abonnement actif</h4>
+                            <p class="text-muted mb-4">Vous n'êtes abonné à aucun service pour le moment.</p>
+                            <a href="{{ path('client_services') }}" class="btn btn-primary">
+                                <i class="fas fa-rocket me-2"></i>Découvrir les services
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Avantages</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Facturation mensuelle automatique
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Désabonnement à tout moment
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Support client dédié
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Accès immédiat après paiement
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h6><i class="fas fa-headset me-2 text-primary"></i>Besoin d'aide ?</h6>
+                    <p class="small text-muted mb-0">
+                        Contactez notre service client pour toute question concernant vos abonnements.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

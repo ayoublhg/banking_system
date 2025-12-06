@@ -1,0 +1,143 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion Administrateur • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .admin-login {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+        }
+        .admin-login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .admin-login-header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .admin-login-body {
+            padding: 3rem;
+        }
+        .btn-admin-login {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-admin-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+        }
+        .admin-back-link {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .admin-back-link:hover {
+            color: #dc3545;
+        }
+        .form-control-admin {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-control-admin:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="admin-login">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="admin-login-card">
+                    <div class="admin-login-header">
+                        <i class="fas fa-user-shield fa-3x mb-3"></i>
+                        <h2 class="mb-2">Administration</h2>
+                        <p class="mb-0 opacity-75">Accès réservé au personnel autorisé</p>
+                    </div>
+                    
+                    <div class="admin-login-body">
+                        {% if error %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ error.messageKey|trans(error.messageData, 'security') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        <form method="post" action="{{ path('admin_login') }}">
+                            <div class="mb-4">
+                                <label for="inputEmail" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-1"></i> Email Administrateur
+                                </label>
+                                <input type="email" 
+                                       value="{{ last_username }}" 
+                                       name="email" 
+                                       id="inputEmail" 
+                                       class="form-control form-control-admin" 
+                                       required 
+                                       autofocus>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="inputPassword" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-1"></i> Mot de passe
+                                </label>
+                                <input type="password" 
+                                       name="password" 
+                                       id="inputPassword" 
+                                       class="form-control form-control-admin" 
+                                       required>
+                            </div>
+
+                            <input type="hidden" name="_csrf_token" 
+                                   value="{{ csrf_token('authenticate') }}">
+
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-admin-login">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Connexion Administrateur
+                                </button>
+                            </div>
+
+                            <div class="text-center">
+                                <a href="{{ path('app_login') }}" class="admin-back-link">
+                                    <i class="fas fa-arrow-left me-1"></i>
+                                    Retour à la connexion client
+                                </a>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    Toutes les connexions sont surveillées et enregistrées
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

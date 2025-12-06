@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Transactions • Banking System{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">
+                <i class="fas fa-exchange-alt text-primary me-2"></i>Transactions
+            </h1>
+            <p class="text-muted">Effectuez vos opérations bancaires</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 text-center shadow-sm border-0 hover-shadow">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-money-bill-wave fa-3x text-success"></i>
+                    </div>
+                    <h3 class="h5">Dépôt</h3>
+                    <p class="text-muted small">Ajoutez de l'argent sur votre compte</p>
+                    <a href="{{ path('client_transaction_deposit') }}" class="btn btn-success mt-2">
+                        <i class="fas fa-plus me-1"></i> Effectuer un dépôt
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 text-center shadow-sm border-0 hover-shadow">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-money-check-alt fa-3x text-warning"></i>
+                    </div>
+                    <h3 class="h5">Retrait</h3>
+                    <p class="text-muted small">Retirez de l'argent de votre compte</p>
+                    <a href="{{ path('client_transaction_withdraw') }}" class="btn btn-warning text-white mt-2">
+                        <i class="fas fa-minus me-1"></i> Effectuer un retrait
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 text-center shadow-sm border-0 hover-shadow">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-exchange-alt fa-3x text-info"></i>
+                    </div>
+                    <h3 class="h5">Virement</h3>
+                    <p class="text-muted small">Transférez de l'argent vers un autre compte</p>
+                    <a href="{{ path('client_transaction_transfer') }}" class="btn btn-info mt-2">
+                        <i class="fas fa-exchange-alt me-1"></i> Effectuer un virement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Mes dernières transactions</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Accédez à l'historique complet depuis la page de chaque compte.</p>
+                <a href="{{ path('client_accounts') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-wallet me-1"></i> Voir mes comptes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-shadow { transition: all 0.3s ease; }
+.hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+</style>
+{% endblock %}

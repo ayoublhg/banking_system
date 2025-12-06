@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Service • Banking System{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="{{ path('admin_dashboard') }}">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ path('admin_services') }}">Services</a>
+                            </li>
+                            <li class="breadcrumb-item active">Modifier service</li>
+                        </ol>
+                    </nav>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-edit fa-3x text-primary mb-3"></i>
+                        <h2 class="h4 fw-bold">Modifier le service</h2>
+                        <p class="text-muted">{{ service.name }}</p>
+                    </div>
+
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.name, 'Nom du service', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                    {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(form.name) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.price, 'Prix mensuel (€)', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                    {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(form.price) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-group">
+                                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.isActive, 'Statut', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                    {{ form_widget(form.isActive, {'attr': {'class': 'form-select'}}) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.imageFile, 'Image', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                    {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+                                    <small class="text-muted">Formats: JPG, PNG, GIF • Max: 2MB</small>
+                                    
+                                    {% if service.image %}
+                                        <div class="mt-2">
+                                            <p class="small text-muted mb-1">Image actuelle :</p>
+                                            <img src="{{ vich_uploader_asset(service, 'imageFile') }}" 
+                                                 alt="{{ service.name }}" 
+                                                 class="img-thumbnail" 
+                                                 style="width: 100px; height: 100px;">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('admin_services') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Annuler
+                            </a>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Enregistrer
+                                </button>
+                                <a href="{{ path('admin_service_delete', {'id': service.id}) }}" 
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Supprimer définitivement ce service ?');">
+                                    <i class="fas fa-trash me-2"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

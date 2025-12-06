@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .profile-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 2rem;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -60px auto 20px;
+            border: 5px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: #e9ecef;
+        }
+        .action-card {
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .action-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+            <li class="breadcrumb-item active">Mon Profil</li>
+        </ol>
+    </nav>
+
+    <!-- Profile Header -->
+    <div class="card profile-card mb-5">
+        <div class="profile-header">
+            <div class="text-center">
+                <div class="profile-avatar">
+                    <i class="fas fa-user fa-4x text-primary"></i>
+                </div>
+                <h2 class="mb-2">{{ client.prenom }} {{ client.nom }}</h2>
+                <p class="mb-0 opacity-75">{{ client.email }}</p>
+                <span class="badge bg-primary mt-2">Client</span>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Stats -->
+            <div class="row mb-5">
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <i class="fas fa-wallet fa-2x text-primary mb-2"></i>
+                        <h4>{{ client.accounts|length }}</h4>
+                        <p class="text-muted mb-0">Comptes</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <i class="fas fa-exchange-alt fa-2x text-success mb-2"></i>
+                        <h4>{{ client.transactions|length }}</h4>
+                        <p class="text-muted mb-0">Transactions</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-alt fa-2x text-info mb-2"></i>
+                        <h4>
+                            {% set firstAccount = client.accounts|first %}
+                            {% if firstAccount and firstAccount.createdAt %}
+                                {{ "now"|date("Y") - firstAccount.createdAt|date("Y") }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-0">Années</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="stat-card">
+                        <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                        <h4>VIP</h4>
+                        <p class="text-muted mb-0">Niveau</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card action-card h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Informations personnelles</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Nom complet</th>
+                                    <td>{{ client.nom }} {{ client.prenom }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>{{ client.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date d'inscription</th>
+                                    <td>
+                                        {% if client.createdAt is defined and client.createdAt %}
+                                            {{ client.createdAt|date('d/m/Y') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Dernière connexion</th>
+                                    <td>{{ "now"|date("d/m/Y à H:i") }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card action-card h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('client_profile_edit') }}" class="btn btn-outline-primary text-start py-3">
+                                    <i class="fas fa-edit me-2"></i>
+                                    <div>
+                                        <strong>Modifier le profil</strong>
+                                        <p class="small text-muted mb-0">Mettez à jour vos informations personnelles</p>
+                                    </div>
+                                </a>
+                                
+                                <a href="{{ path('client_change_password') }}" class="btn btn-outline-warning text-start py-3">
+                                    <i class="fas fa-key me-2"></i>
+                                    <div>
+                                        <strong>Changer le mot de passe</strong>
+                                        <p class="small text-muted mb-0">Mettez à jour votre mot de passe de sécurité</p>
+                                    </div>
+                                </a>
+                                
+                                <a href="{{ path('client_accounts') }}" class="btn btn-outline-success text-start py-3">
+                                    <i class="fas fa-wallet me-2"></i>
+                                    <div>
+                                        <strong>Voir mes comptes</strong>
+                                        <p class="small text-muted mb-0">Consultez vos comptes bancaires</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

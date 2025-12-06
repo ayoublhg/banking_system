@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - Banking System{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>Créer un compte
+                </h4>
+            </div>
+            <div class="card-body">
+                {{ form_start(registrationForm, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(registrationForm.prenom) }}
+                        {{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control' ~ (registrationForm.prenom.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                        {{ form_errors(registrationForm.prenom) }}
+                        <div class="invalid-feedback">
+                            Veuillez entrer votre prénom.
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(registrationForm.nom) }}
+                        {{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control' ~ (registrationForm.nom.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                        {{ form_errors(registrationForm.nom) }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(registrationForm.email) }}
+                    {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control' ~ (registrationForm.email.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                    {{ form_errors(registrationForm.email) }}
+                    <div class="form-text">
+                        Nous utiliserons cet email pour vous connecter.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(registrationForm.plainPassword.first) }}
+                    {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'form-control' ~ (registrationForm.plainPassword.first.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                    {{ form_errors(registrationForm.plainPassword.first) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(registrationForm.plainPassword.second) }}
+                    {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'form-control' ~ (registrationForm.plainPassword.second.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                    {{ form_errors(registrationForm.plainPassword.second) }}
+                </div>
+
+                <div class="mb-3 form-check">
+                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input' ~ (registrationForm.agreeTerms.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                    {{ form_label(registrationForm.agreeTerms) }}
+                    {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>S'inscrire
+                    </button>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Déjà un compte ? Se connecter
+                    </a>
+                </div>
+
+                {{ form_end(registrationForm) }}
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <h6 class="text-muted">Avantages de notre banque en ligne</h6>
+                    <div class="row mt-3">
+                        <div class="col-4 text-center">
+                            <i class="fas fa-shield-alt fa-2x text-primary mb-2"></i>
+                            <p class="small mb-0">Sécurité garantie</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                            <p class="small mb-0">24/7 disponible</p>
+                        </div>
+                        <div class="col-4 text-center">
+                            <i class="fas fa-euro-sign fa-2x text-primary mb-2"></i>
+                            <p class="small mb-0">Frais réduits</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Validation côté client
+(function () {
+    'use strict'
+    
+    // Récupérer tous les formulaires
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Boucle pour les empêcher de se soumettre
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}

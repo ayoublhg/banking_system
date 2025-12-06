@@ -1,0 +1,237 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .register-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+        }
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .register-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            color: white;
+            padding: 3rem;
+            text-align: center;
+        }
+        .register-body {
+            padding: 3rem;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .form-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: 600;
+        }
+        .step.active {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="register-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="register-card">
+                    <div class="register-header">
+                        <h2 class="mb-3"><i class="fas fa-user-plus me-2"></i>Créer un compte</h2>
+                        <p class="mb-0 opacity-75">Rejoignez notre plateforme bancaire sécurisée</p>
+                    </div>
+                    
+                    <div class="register-body">
+                        <div class="step-indicator">
+                            <div class="step active">1</div>
+                            <div class="step">2</div>
+                            <div class="step">3</div>
+                        </div>
+                        
+                        {% for flash in app.flashes('success') %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i> {{ flash }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                        
+                        {{ form_start(registrationForm, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                        
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ registrationForm.nom.vars.id }}" class="form-label fw-semibold">
+                                        <i class="fas fa-user me-1"></i> Nom
+                                    </label>
+                                    {{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control', 'placeholder': 'Votre nom'}}) }}
+                                    <div class="form-error">
+                                        {{ form_errors(registrationForm.nom) }}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ registrationForm.prenom.vars.id }}" class="form-label fw-semibold">
+                                        <i class="fas fa-user me-1"></i> Prénom
+                                    </label>
+                                    {{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control', 'placeholder': 'Votre prénom'}}) }}
+                                    <div class="form-error">
+                                        {{ form_errors(registrationForm.prenom) }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ registrationForm.email.vars.id }}" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-1"></i> Adresse email
+                                </label>
+                                {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'votre@email.com'}}) }}
+                                <div class="form-error">
+                                    {{ form_errors(registrationForm.email) }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ registrationForm.plainPassword.first.vars.id }}" class="form-label fw-semibold">
+                                        <i class="fas fa-lock me-1"></i> Mot de passe
+                                    </label>
+                                    {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'form-control', 'placeholder': 'Minimum 6 caractères'}}) }}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ registrationForm.plainPassword.second.vars.id }}" class="form-label fw-semibold">
+                                        <i class="fas fa-lock me-1"></i> Confirmer le mot de passe
+                                    </label>
+                                    {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'form-control', 'placeholder': 'Répétez le mot de passe'}}) }}
+                                </div>
+                            </div>
+                            
+                            <div class="form-error">
+                                {{ form_errors(registrationForm.plainPassword) }}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                                    <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">
+                                        J'accepte les <a href="#" class="text-primary">conditions d'utilisation</a> et la 
+                                        <a href="#" class="text-primary">politique de confidentialité</a>
+                                    </label>
+                                </div>
+                                <div class="form-error">
+                                    {{ form_errors(registrationForm.agreeTerms) }}
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid mb-4">
+                                <button type="submit" class="btn btn-register">
+                                    <i class="fas fa-user-plus me-2"></i> Créer mon compte
+                                </button>
+                            </div>
+                            
+                            <div class="text-center">
+                                <p class="text-muted mb-0">
+                                    Vous avez déjà un compte ?
+                                    <a href="{{ path('app_login') }}" class="text-primary text-decoration-none fw-semibold">
+                                        Connectez-vous
+                                    </a>
+                                </p>
+                            </div>
+                            
+                        {{ form_end(registrationForm) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Password strength indicator
+        const passwordInput = document.getElementById('{{ registrationForm.plainPassword.first.vars.id }}');
+        const confirmInput = document.getElementById('{{ registrationForm.plainPassword.second.vars.id }}');
+        
+        function checkPasswordMatch() {
+            if (passwordInput.value !== confirmInput.value) {
+                confirmInput.style.borderColor = '#dc3545';
+            } else {
+                confirmInput.style.borderColor = '#28a745';
+            }
+        }
+        
+        passwordInput.addEventListener('input', checkPasswordMatch);
+        confirmInput.addEventListener('input', checkPasswordMatch);
+        
+        // Form validation
+        (function() {
+            'use strict'
+            
+            const forms = document.querySelectorAll('.needs-validation')
+            
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+{% endblock %}

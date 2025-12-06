@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Transactions • {{ account.accountNumber }} • Banking System{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('client_accounts') }}">Mes Comptes</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('client_account_show', {'id': account.id}) }}">{{ account.accountNumber }}</a></li>
+            <li class="breadcrumb-item active">Transactions</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 mb-0">
+            <i class="fas fa-history text-primary me-2"></i>Historique des Transactions
+        </h2>
+        <a href="{{ path('client_account_show', {'id': account.id}) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Retour au compte
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <h5 class="text-muted">Compte</h5>
+                    <h4 class="text-primary">{{ account.accountNumber }}</h4>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h5 class="text-muted">Solde actuel</h5>
+                    <h4 class="{{ account.balance >= 0 ? 'text-success' : 'text-danger' }}">
+                        {{ account.balance|number_format(2, ',', ' ') }} €
+                    </h4>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h5 class="text-muted">Nombre de transactions</h5>
+                    <h4 class="text-info">{{ transactions|length }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if transactions|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Montant</th>
+                                <th>Description</th>
+                                <th>Référence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ transaction.createdAt|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        <span class="badge {{ transaction.type == 'deposit' ? 'bg-success' : 'bg-danger' }}">
+                                            {{ transaction.getTypeLabel() }}
+                                        </span>
+                                    </td>
+                                    <td class="{{ transaction.type == 'deposit' ? 'text-success' : 'text-danger' }}">
+                                        {{ transaction.getFormattedAmount() }}
+                                    </td>
+                                    <td>{{ transaction.description|default('N/A') }}</td>
+                                    <td><small class="text-muted">#{{ transaction.id }}</small></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-exchange-alt fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Aucune transaction</h4>
+                    <p class="text-muted">Ce compte n'a pas encore de transactions.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

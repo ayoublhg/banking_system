@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Services • Banking System{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">
+                <i class="fas fa-cogs text-primary me-2"></i>Nos Services Bancaires
+            </h1>
+            <p class="text-muted">Découvrez tous les services disponibles</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for service in services %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                {% if service.image %}
+                    <img src="{{ vich_uploader_asset(service, 'imageFile') }}" 
+                         class="card-img-top" 
+                         alt="{{ service.name }}"
+                         style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-gradient-primary d-flex align-items-center justify-content-center" 
+                         style="height: 200px;">
+                        <i class="fas fa-{{ service.name|lower matches '/premium|vip|gold|exclusive/' ? 'crown' : 'cog' }} fa-3x text-white"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ service.name }}</h5>
+                    <p class="card-text flex-grow-1">{{ service.description|default('Description à venir...') }}</p>
+                    
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="text-primary mb-0">
+                                {% if service.price > 0 %}
+                                    {{ service.price|number_format(2, ',', ' ') }} €
+                                    <small class="text-muted fs-6">/mois</small>
+                                {% else %}
+                                    <span class="text-success">Gratuit</span>
+                                {% endif %}
+                            </h4>
+                            
+                            {% if false %}
+                                <span class="badge bg-success">Abonné</span>
+                            {% else %}
+                                <span class="badge bg-{{ service.isActive ? 'primary' : 'secondary' }}">
+                                    {{ service.isActive ? 'Disponible' : 'Bientôt' }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        {% if false %}
+                            <form action="{{ path('client_service_unsubscribe', {'id': service.id}) }}" method="POST" class="d-grid">
+                                <input type="hidden" name="_token" value="{{ csrf_token('unsubscribe' ~ service.id) }}">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="fas fa-times me-1"></i> Se désabonner
+                                </button>
+                            </form>
+                        {% else %}
+                            <form action="{{ path('client_service_subscribe', {'id': service.id}) }}" method="POST" class="d-grid">
+                                <input type="hidden" name="_token" value="{{ csrf_token('subscribe' ~ service.id) }}">
+                                <button type="submit" class="btn btn-{{ service.price > 0 ? 'primary' : 'success' }}">
+                                    <i class="fas fa-check me-1"></i> 
+                                    {% if service.price > 0 %}
+                                        S'abonner {{ service.price|number_format(2, ',', ' ') }}€/mois
+                                    {% else %}
+                                        Activer gratuitement
+                                    {% endif %}
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <i class="fas fa-info-circle fa-3x mb-3"></i>
+                <h4>Aucun service disponible</h4>
+                <p class="text-muted">Revenez plus tard pour découvrir nos services.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        public: false
+        autowire: true
+        autoconfigure: true
+
+    # Définition explicite du AnnotationReader
+    Doctrine\Common\Annotations\AnnotationReader:
+        public: false
+
+    # Définition explicite du AnnotationDriver
+    Doctrine\ORM\Mapping\Driver\AnnotationDriver:
+        arguments:
+            - '@Doctrine\Common\Annotations\AnnotationReader'
+            - ['%kernel.project_dir%/src/Entity']
+        tags:
+            - { name: 'doctrine.orm.metadata_driver', alias: 'default_annotation' }

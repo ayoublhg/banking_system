@@ -1,0 +1,158 @@
+<?php
+
+namespace App\Repository;
+
+use App\Entity\User;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
+
+/**
+ * @extends ServiceEntityRepository<User>
+ */
+class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, User::class);
+    }
+
+    public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
+    {
+        // Support both User and Admin
+        if (!$user instanceof \App\Entity\User && !$user instanceof \App\Entity\Admin) {
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
+        }
+
+        $user->setPassword($newHashedPassword);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    public function findByEmail(string $email): ?object
+    {
+        // Use ONLY raw SQL - no DQL at all
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT * FROM users WHERE email = :email LIMIT 1';
+        
+        try {
+            $stmt = $conn->prepare($sql);
+            $result = $stmt->executeQuery(['email' => $email]);
+            $data = $result->fetchAssociative();
+            
+            if (!$data) {
+                return null;
+            }
+            
+            return $this->createUserFromData($data);
+            
+        } catch (\Exception $e) {
+            // Fallback to simple find
+            return $this->findOneBy(['email' => $email]);
+        }
+    }
+
+    private function createUserFromData(array $data): ?object
+    {
+        $type = $data['type'] ?? 'client';
+        
+        if ($type === 'admin') {
+            $user = new \App\Entity\Admin();
+            
+            // Set Admin properties
+            $user->setNom($data['last_name'] ?? '');
+            $user->setPrenom($data['first_name'] ?? '');
+            $user->setEmail($data['email'] ?? '');
+            $user->setPassword($data['password'] ?? '');
+            $user->setType('admin');
+            
+            $roles = json_decode($data['roles'] ?? '[]', true);
+            if (empty($roles)) {
+                $roles = ['ROLE_ADMIN'];
+            }
+            $user->setRoles($roles);
+            
+            if (isset($data['is_verified'])) {
+                $user->setIsVerified((bool) $data['is_verified']);
+            }
+            
+            if (isset($data['created_at'])) {
+                try {
+                    $user->setCreatedAt(new \DateTime($data['created_at']));
+                } catch (\Exception $e) {
+                    // Ignore
+                }
+            }
+            
+        } else {
+            // Client
+            $user = new \App\Entity\Client();
+            
+            // Set Client properties
+            $user->setEmail($data['email'] ?? '');
+            $user->setPassword($data['password'] ?? '');
+            $user->setFirstName($data['first_name'] ?? '');
+            $user->setLastName($data['last_name'] ?? '');
+            
+            $roles = json_decode($data['roles'] ?? '[]', true);
+            if (empty($roles)) {
+                $roles = ['ROLE_USER'];
+            }
+            $user->setRoles($roles);
+            
+            if (isset($data['is_verified'])) {
+                $user->setIsVerified((bool) $data['is_verified']);
+            }
+            
+            if (isset($data['created_at'])) {
+                try {
+                    $user->setCreatedAt(new \DateTime($data['created_at']));
+                } catch (\Exception $e) {
+                    // Ignore
+                }
+            }
+        }
+        
+        // Set ID
+        if (!empty($data['id'])) {
+            $reflection = new \ReflectionClass($user);
+            $idProperty = $reflection->getProperty('id');
+            $idProperty->setAccessible(true);
+            $idProperty->setValue($user, (int) $data['id']);
+        }
+        
+        return $user;
+    }
+
+    public function findByResetToken(string $token): ?object
+    {
+        // Use raw SQL
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT * FROM users WHERE reset_token = :token AND reset_token_expires_at > NOW() LIMIT 1';
+        
+        try {
+            $stmt = $conn->prepare($sql);
+            $result = $stmt->executeQuery(['token' => $token]);
+            $data = $result->fetchAssociative();
+            
+            if (!$data) {
+                return null;
+            }
+            
+            return $this->createUserFromData($data);
+            
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+    
+    public function supportsClass(string $class): bool
+    {
+        return $class === \App\Entity\User::class || 
+               $class === \App\Entity\Admin::class || 
+               $class === \App\Entity\Client::class ||
+               is_subclass_of($class, \App\Entity\User::class);
+    }
+}

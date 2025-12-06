@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Tableau de bord • Banking System{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-tachometer-alt text-primary me-2"></i>Mon Tableau de bord
+        </h1>
+        <span class="badge bg-primary">Client</span>
+    </div>
+    
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Bienvenue <strong>{{ app.user.prenom }} {{ app.user.nom }}</strong> ! 
+        Gérez vos comptes et transactions depuis cet espace.
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Mes comptes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Numéro</th>
+                                    <th>Solde</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if app.user.accounts|length > 0 %}
+                                    {% for account in app.user.accounts %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-{{ account.type == 'checking' ? 'primary' : 'info' }}">
+                                                {{ account.typeLabel }}
+                                            </span>
+                                        </td>
+                                        <td><code>{{ account.accountNumber }}</code></td>
+                                        <td class="{{ account.balance >= 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ account.balance|number_format(2, ',', ' ') }} €
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ account.isActive ? 'bg-success' : 'bg-danger' }}">
+                                                {{ account.isActive ? 'Actif' : 'Inactif' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('client_account_show', {'id': account.id}) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <i class="fas fa-wallet fa-2x text-muted mb-3"></i>
+                                            <p class="text-muted">Aucun compte trouvé</p>
+                                            <a href="#" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-plus me-1"></i> Ouvrir un compte
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('client_accounts') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-wallet me-2"></i> Voir tous mes comptes
+                        </a>
+                        <a href="{{ path('client_services') }}" class="btn btn-outline-success">
+                            <i class="fas fa-cogs me-2"></i> Nos services
+                        </a>
+                        <a href="{{ path('client_profile') }}" class="btn btn-outline-info">
+                            <i class="fas fa-user me-2"></i> Mon profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Informations personnelles</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nom :</strong> {{ app.user.nom }}</p>
+                    <p><strong>Prénom :</strong> {{ app.user.prenom }}</p>
+                    <p><strong>Email :</strong> {{ app.user.email }}</p>
+                    <p><strong>Comptes :</strong> {{ app.user.accounts|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

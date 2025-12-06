@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compte {{ account.accountNumber }} • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .account-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .balance-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .transaction-card {
+            transition: transform 0.2s;
+        }
+        .transaction-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <!-- Header avec breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('admin_accounts') }}">Comptes</a></li>
+            <li class="breadcrumb-item active">{{ account.accountNumber }}</li>
+        </ol>
+    </nav>
+
+    <!-- Account Header -->
+    <div class="account-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="h3 mb-2">
+                    <i class="fas fa-wallet me-2"></i>{{ account.typeLabel }}
+                </h1>
+                <p class="mb-0 opacity-75">{{ account.accountNumber }}</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="balance-display {{ account.balance >= 0 ? 'text-success' : 'text-danger' }}">
+                    {{ account.balance|number_format(2, ',', ' ') }} €
+                </div>
+                <p class="mb-0">Solde actuel</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Account Details -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations du compte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>Numéro de compte</span>
+                            <strong>{{ account.accountNumber }}</strong>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>Type de compte</span>
+                            <span class="badge bg-info">{{ account.typeLabel }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>Client</span>
+                            <a href="{{ path('admin_client_show', {'id': account.client.id}) }}" 
+                               class="text-decoration-none">
+                                <strong>{{ account.client.firstName }} {{ account.client.lastName }}</strong>
+                            </a>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>Découvert autorisé</span>
+                            <strong>{{ account.overdraftLimit|number_format(2, ',', ' ') }} €</strong>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>Statut</span>
+                            <span class="badge {{ account.isActive ? 'bg-success' : 'bg-danger' }}">
+                                {{ account.isActive ? 'Actif' : 'Inactif' }}
+                            </span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>Date de création</span>
+                            <strong>{{ account.createdAt|date('d/m/Y') }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('admin_account_edit', {'id': account.id}) }}" 
+                           class="btn btn-outline-primary text-start">
+                            <i class="fas fa-edit me-2"></i> Modifier le compte
+                        </a>
+                        
+                        <!-- Toggle Status Form -->
+                        <form method="post" 
+                              action="{{ path('admin_account_toggle_status', {'id': account.id}) }}"
+                              onsubmit="return confirm('{{ account.isActive ? 'Désactiver' : 'Activer' }} ce compte ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-status' ~ account.id) }}">
+                            <button type="submit" class="btn {{ account.isActive ? 'btn-outline-warning' : 'btn-outline-success' }} text-start w-100">
+                                <i class="fas {{ account.isActive ? 'fa-ban' : 'fa-check' }} me-2"></i>
+                                {{ account.isActive ? 'Désactiver le compte' : 'Activer le compte' }}
+                            </button>
+                        </form>
+                        
+                        <!-- Delete Form -->
+                        <form method="post" 
+                              action="{{ path('admin_account_delete', {'id': account.id}) }}"
+                              onsubmit="return confirm('Supprimer définitivement ce compte ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ account.id) }}">
+                            <button type="submit" class="btn btn-outline-danger text-start w-100"
+                                    {% if account.balance != 0 %}disabled{% endif %}>
+                                <i class="fas fa-trash me-2"></i> Supprimer le compte
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Dernières transactions</h5>
+                    <span class="badge bg-primary">{{ account.transactions|length }} transactions</span>
+                </div>
+                <div class="card-body">
+                    {% if account.transactions|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Montant</th>
+                                        <th>Description</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in account.transactions|slice(0, 10) %}
+                                    <tr>
+                                        <td>{{ transaction.createdAt|date('d/m H:i') }}</td>
+                                        <td>
+                                            <span class="badge {{ transaction.type == 'deposit' ? 'bg-success' : 'bg-danger' }}">
+                                                {{ transaction.type == 'deposit' ? 'Dépôt' : 'Retrait' }}
+                                            </span>
+                                        </td>
+                                        <td class="{{ transaction.type == 'deposit' ? 'text-success' : 'text-danger' }}">
+                                            {{ transaction.amount|number_format(2, ',', ' ') }} €
+                                        </td>
+                                        <td>{{ transaction.description|default('N/A')|slice(0, 30) }}</td>
+                                        <td>
+                                            <span class="badge bg-success">Terminé</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% if account.transactions|length > 10 %}
+                            <div class="text-center mt-3">
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    Voir toutes les transactions ({{ account.transactions|length }})
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucune transaction</h5>
+                            <p class="text-muted">Ce compte n'a pas encore effectué de transactions.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

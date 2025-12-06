@@ -1,0 +1,155 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Compte • Banking System{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('client_accounts') }}">Mes Comptes</a></li>
+            <li class="breadcrumb-item active">{{ account.accountNumber }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Détails du Compte</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Type de compte:</th>
+                                    <td>
+                                        <span class="badge bg-{{ account.type == 'checking' ? 'primary' : 'info' }}">
+                                            {{ account.getTypeLabel() }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Numéro:</th>
+                                    <td><code>{{ account.accountNumber }}</code></td>
+                                </tr>
+                                <tr>
+                                    <th>Solde:</th>
+                                    <td class="h4 {{ account.balance >= 0 ? 'text-success' : 'text-danger' }}">
+                                        {{ account.balance|number_format(2, ',', ' ') }} €
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Découvert:</th>
+                                    <td>{{ account.overdraftLimit|number_format(2, ',', ' ') }} €</td>
+                                </tr>
+                                <tr>
+                                    <th>Disponible:</th>
+                                    <td class="h5 text-primary">
+                                        {{ soldeDisponible|number_format(2, ',', ' ') }} €
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Créé le:</th>
+                                    <td>{{ account.createdAt|date('d/m/Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Statut:</th>
+                                    <td>
+                                        <span class="badge {{ account.isActive ? 'bg-success' : 'bg-danger' }}">
+                                            {{ account.isActive ? 'Actif' : 'Inactif' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Titulaire</h5>
+                </div>
+                <div class="card-body">
+                    <h6>{{ account.client.firstName }} {{ account.client.lastName }}</h6> {# CORRECTION ICI #}
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-envelope me-1"></i> {{ account.client.email }}
+                    </p>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="fas fa-wallet me-1"></i> {{ account.client.accounts|length }} compte(s)
+                    </small>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-body text-center">
+                    <a href="{{ path('client_account_transactions', {'id': account.id}) }}" 
+                       class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-history me-2"></i> Historique complet
+                    </a>
+                    <button class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-print me-2"></i> Relevé de compte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Dernières Transactions</h5>
+        </div>
+        <div class="card-body">
+            {% if transactions|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Montant</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ transaction.createdAt|date('d/m/Y H:i') }}</td>
+                                    <td>
+                                        <span class="badge {{ transaction.type == 'deposit' ? 'bg-success' : 'bg-danger' }}">
+                                            {{ transaction.getTypeLabel() }}
+                                        </span>
+                                    </td>
+                                    <td class="{{ transaction.type == 'deposit' ? 'text-success' : 'text-danger' }}">
+                                        {{ transaction.getFormattedAmount() }}
+                                    </td>
+                                    <td>{{ transaction.description|default('N/A') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ path('client_account_transactions', {'id': account.id}) }}" 
+                       class="btn btn-primary">
+                        Voir toutes les transactions
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Aucune transaction pour ce compte.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}  

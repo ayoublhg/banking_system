@@ -1,0 +1,124 @@
+# ========== PUBLIC ROUTES ==========
+app_home:
+    path: /
+    controller: App\Controller\HomeController::index
+    methods: GET
+
+app_login:
+    path: /login
+    controller: App\Controller\SecurityController::login
+    methods: [GET, POST]
+
+app_logout:
+    path: /logout
+    methods: GET
+
+app_register:
+    path: /register
+    controller: App\Controller\RegistrationController::register
+    methods: [GET, POST]
+
+# ========== ADMIN ROUTES ==========
+# Add these new admin routes
+admin_login:
+    path: /admin/login
+    controller: App\Controller\Admin\SecurityController::login
+    methods: [GET, POST]
+
+admin_logout:
+    path: /admin/logout
+    methods: GET
+
+# Change this from /admin/dashboard to just /admin
+admin_dashboard:
+    path: /admin
+    controller: App\Controller\Admin\DashboardController::index
+    methods: GET
+
+admin_services:
+    path: /admin/services
+    controller: App\Controller\Admin\ServicesController::index
+    methods: GET
+
+
+admin_accounts:
+    path: /admin/accounts
+    controller: App\Controller\Admin\AccountsController::index
+    methods: GET
+
+# ========== CLIENT ROUTES ==========
+client_dashboard:
+    path: /client/dashboard
+    controller: App\Controller\Client\DashboardController::index
+    methods: GET
+
+client_services:
+    path: /client/services
+    controller: App\Controller\Client\ServicesController::index
+    methods: GET
+
+client_profile:
+    path: /client/profile
+    controller: App\Controller\Client\ProfileController::index
+    methods: GET
+
+client_transactions_index:
+    path: /client/transactions
+    controller: App\Controller\Client\TransactionController::index
+    methods: GET
+
+client_transaction_deposit:
+    path: /client/transactions/deposit
+    controller: App\Controller\Client\TransactionController::deposit
+    methods: [GET, POST]
+
+client_transaction_withdraw:
+    path: /client/transactions/withdraw
+    controller: App\Controller\Client\TransactionController::withdraw
+    methods: [GET, POST]
+
+client_transaction_transfer:
+    path: /client/transactions/transfer
+    controller: App\Controller\Client\TransactionController::transfer
+    methods: [GET, POST]
+
+client_accounts:
+    path: /client/accounts
+    controller: App\Controller\Client\AccountsController::index
+    methods: GET
+
+client_account_new:
+    path: /client/accounts/new
+    controller: App\Controller\Client\AccountsController::new
+    methods: [GET, POST]
+
+client_account_show:
+    path: /client/accounts/{id}
+    controller: App\Controller\Client\AccountsController::show
+    methods: GET
+
+client_service_subscribe:
+    path: /client/services/{id}/subscribe
+    controller: App\Controller\Client\ServiceSubscriptionController::subscribe
+    methods: POST
+
+client_service_unsubscribe:
+    path: /client/services/{id}/unsubscribe
+    controller: App\Controller\Client\ServiceSubscriptionController::unsubscribe
+    methods: POST
+
+client_my_subscriptions:
+    path: /client/services/my-subscriptions
+    controller: App\Controller\Client\ServiceSubscriptionController::mySubscriptions
+    methods: GET
+client_change_password:
+    path: /client/profile/change-password
+    controller: App\Controller\Client\ChangePasswordController::changePassword
+    methods: [GET, POST]
+
+client_service_redirect:
+    path: /client/services/{id}
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction
+    defaults:
+        route: client_services
+        permanent: true

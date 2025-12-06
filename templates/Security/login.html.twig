@@ -1,0 +1,320 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .login-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .login-left {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            color: white;
+            padding: 4rem 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-right {
+            padding: 4rem 3rem;
+        }
+        .login-brand {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .test-accounts {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .account-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .account-card:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .floating-label {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .floating-label input {
+            padding-top: 1.5rem;
+        }
+        .floating-label label {
+            position: absolute;
+            top: 0.5rem;
+            left: 1rem;
+            font-size: 0.85rem;
+            color: #6c757d;
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        .floating-label input:focus + label,
+        .floating-label input:not(:placeholder-shown) + label {
+            top: 0.2rem;
+            font-size: 0.75rem;
+            color: #667eea;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="login-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="login-card">
+                    <div class="row g-0">
+                        <!-- Left Column - Welcome -->
+                        <div class="col-lg-6 d-none d-lg-block">
+                            <div class="login-left">
+                                <div class="text-center mb-5">
+                                    <i class="fas fa-university fa-4x mb-4 opacity-75"></i>
+                                    <h1 class="display-5 fw-bold">Bienvenue</h1>
+                                    <p class="lead opacity-75">Retrouvez vos services bancaires en toute sécurité</p>
+                                </div>
+                                
+                                <div class="features-list">
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="feature-icon me-3">
+                                            <i class="fas fa-shield-alt fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h5>Sécurité maximale</h5>
+                                            <p class="small opacity-75 mb-0">Cryptage 256-bit et 2FA</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="feature-icon me-3">
+                                            <i class="fas fa-mobile-alt fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h5>Accès mobile</h5>
+                                            <p class="small opacity-75 mb-0">Disponible 24h/24, 7j/7</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center">
+                                        <div class="feature-icon me-3">
+                                            <i class="fas fa-headset fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h5>Support 24/7</h5>
+                                            <p class="small opacity-75 mb-0">Assistance en ligne permanente</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Login Form -->
+                        <div class="col-lg-6">
+                            <div class="login-right">
+                                <div class="login-brand text-center mb-5">
+                                    <h2 class="text-primary fw-bold">
+                                        <i class="fas fa-piggy-bank me-2"></i>Banking System
+                                    </h2>
+                                    <p class="text-muted">Connectez-vous à votre espace</p>
+                                </div>
+                                
+                                {% if error %}
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endif %}
+
+                                <form method="post" action="{{ path('app_login') }}">
+                                    <div class="floating-label">
+                                        <input type="email" 
+                                               value="{{ last_username }}" 
+                                               name="email" 
+                                               id="inputEmail" 
+                                               class="form-control" 
+                                               placeholder=" "
+                                               required 
+                                               autofocus>
+                                        <label for="inputEmail">
+                                            <i class="fas fa-envelope me-1"></i> Adresse email
+                                        </label>
+                                    </div>
+
+                                    <div class="floating-label">
+                                        <input type="password" 
+                                               name="password" 
+                                               id="inputPassword" 
+                                               class="form-control" 
+                                               placeholder=" "
+                                               required>
+                                        <label for="inputPassword">
+                                            <i class="fas fa-lock me-1"></i> Mot de passe
+                                        </label>
+                                    </div>
+
+                                    <input type="hidden" name="_csrf_token" 
+                                           value="{{ csrf_token('authenticate') }}">
+
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div class="remember-me">
+                                            <input type="checkbox" id="remember_me" name="_remember_me">
+                                            <label for="remember_me" class="mb-0">Se souvenir de moi</label>
+                                        </div>
+                                        <a href="#" class="text-decoration-none text-primary">
+                                            Mot de passe oublié ?
+                                        </a>
+                                    </div>
+
+                                    <div class="d-grid mb-4">
+                                        <button type="submit" class="btn btn-login">
+                                            <i class="fas fa-sign-in-alt me-2"></i> Se connecter
+                                        </button>
+                                    </div>
+
+                                    <div class="text-center mb-4">
+                                        <p class="text-muted mb-0">
+                                            Pas encore de compte ?
+                                            <a href="{{ path('app_register') }}" class="text-primary text-decoration-none fw-semibold">
+                                                Inscrivez-vous
+                                            </a>
+                                        </p>
+                                    </div>
+                                </form>
+
+                                <!-- Test Accounts -->
+                                <div class="test-accounts">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-vial me-1"></i> Comptes de test
+                                    </h6>
+                                    
+                                    <div class="account-card" onclick="fillLogin('admin@bank.com', 'admin123')">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong class="d-block">Administrateur</strong>
+                                                <small class="text-muted">admin@bank.com</small>
+                                            </div>
+                                            <span class="badge bg-danger">Admin</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="account-card" onclick="fillLogin('john.doe@example.com', 'client123')">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong class="d-block">John Doe</strong>
+                                                <small class="text-muted">john.doe@example.com</small>
+                                            </div>
+                                            <span class="badge bg-primary">Client</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Mot de passe pour tous : <code>client123</code>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Auto-fill form with test accounts
+        function fillLogin(email, password) {
+            document.getElementById('inputEmail').value = email;
+            document.getElementById('inputPassword').value = password;
+            
+            // Add a little animation
+            const emailInput = document.getElementById('inputEmail');
+            const passInput = document.getElementById('inputPassword');
+            
+            emailInput.classList.add('border-success');
+            passInput.classList.add('border-success');
+            
+            setTimeout(() => {
+                emailInput.classList.remove('border-success');
+                passInput.classList.remove('border-success');
+            }, 2000);
+            
+            // Focus on password field
+            passInput.focus();
+        }
+        
+        // Add floating label functionality
+        document.querySelectorAll('.floating-label input').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value) {
+                    this.parentElement.classList.add('filled');
+                } else {
+                    this.parentElement.classList.remove('filled');
+                }
+            });
+        });
+    </script>
+{% endblock %}
