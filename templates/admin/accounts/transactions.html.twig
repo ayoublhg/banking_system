@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Transactions du compte {{ account.accountNumber }} • Banking System{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .transaction-type-deposit { background-color: #d4edda; }
+        .transaction-type-withdraw { background-color: #f8d7da; }
+        .amount-positive { color: #28a745; }
+        .amount-negative { color: #dc3545; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('admin_accounts') }}">Comptes</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('admin_account_show', {'id': account.id}) }}">{{ account.accountNumber }}</a></li>
+            <li class="breadcrumb-item active">Transactions</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold mb-1">
+                <i class="fas fa-history text-primary me-2"></i>Transactions
+            </h1>
+            <p class="text-muted mb-0">
+                Compte: <strong>{{ account.accountNumber }}</strong> • 
+                {{ transactions|length }} transaction(s)
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('admin_account_show', {'id': account.id}) }}" 
+               class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i> Retour au compte
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert si besoin de supprimer pour supprimer le compte -->
+    {% if account.balance == 0 and transactions|length > 0 %}
+    <div class="alert alert-warning">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Pour supprimer ce compte</strong>, vous devez d'abord supprimer les transactions.
+            </div>
+            <form method="post" 
+                  action="{{ path('admin_account_delete_transactions', {'id': account.id}) }}"
+                  onsubmit="return confirm('Supprimer TOUTES les {{ transactions|length }} transactions ? Cette action est irréversible !')">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-transactions' ~ account.id) }}">
+                <input type="hidden" name="redirect_to_delete" value="1">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash me-1"></i> Supprimer toutes les transactions
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Liste des transactions</h5>
+            <span class="badge bg-primary">{{ transactions|length }}</span>
+        </div>
+        
+        <div class="card-body">
+            {% if transactions|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Montant</th>
+                                <th>Description</th>
+                                <th>Solde après</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                            <tr class="transaction-type-{{ transaction.type }}">
+                                <td>{{ transaction.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <span class="badge {{ transaction.type == 'deposit' ? 'bg-success' : 'bg-danger' }}">
+                                        {{ transaction.type == 'deposit' ? 'Dépôt' : 'Retrait' }}
+                                    </span>
+                                </td>
+                                <td class="{{ transaction.type == 'deposit' ? 'amount-positive' : 'amount-negative' }} fw-bold">
+                                    {{ transaction.amount|number_format(2, ',', ' ') }} €
+                                </td>
+                                <td>{{ transaction.description|default('N/A') }}</td>
+                                <td>
+                                    {% if transaction.balanceAfter is defined %}
+                                        {{ transaction.balanceAfter|number_format(2, ',', ' ') }} €
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" 
+                                          action="{{ path('admin_transaction_delete', {'accountId': account.id, 'transactionId': transaction.id}) }}"
+                                          onsubmit="return confirm('Supprimer cette transaction ?')"
+                                          class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete-transaction' ~ transaction.id) }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Delete all button at bottom -->
+                <div class="mt-4 pt-3 border-top text-end">
+                    <form method="post" 
+                          action="{{ path('admin_account_delete_transactions', {'id': account.id}) }}"
+                          onsubmit="return confirm('Supprimer TOUTES les {{ transactions|length }} transactions ?')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-transactions' ~ account.id) }}">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i> Supprimer toutes les transactions
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucune transaction</h5>
+                    <p class="text-muted">Ce compte n'a effectué aucune transaction.</p>
+                    <a href="{{ path('admin_account_show', {'id': account.id}) }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Retour au compte
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

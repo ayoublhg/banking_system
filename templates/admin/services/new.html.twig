@@ -2,94 +2,113 @@
 
 {% block title %}Nouveau Service • Banking System{% endblock %}
 
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        margin-top: 10px;
+        display: none;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('admin_services') }}">Services</a></li>
+            <li class="breadcrumb-item active">Nouveau</li>
+        </ol>
+    </nav>
+
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item">
-                                <a href="{{ path('admin_dashboard') }}">Dashboard</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="{{ path('admin_services') }}">Services</a>
-                            </li>
-                            <li class="breadcrumb-item active">Nouveau service</li>
-                        </ol>
-                    </nav>
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle text-primary me-2"></i>
+                        Créer un nouveau service
+                    </h5>
                 </div>
-                
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
-                        <h2 class="h4 fw-bold">Créer un nouveau service</h2>
-                        <p class="text-muted">Remplissez les informations du service bancaire</p>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.name) }}
+                        {{ form_widget(form.name) }}
+                        {{ form_errors(form.name) }}
                     </div>
-
-                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    {{ form_label(form.name, 'Nom du service', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
-                                    {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Compte Premium'}}) }}
-                                    <div class="invalid-feedback">
-                                        {{ form_errors(form.name) }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    {{ form_label(form.price, 'Prix mensuel (€)', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
-                                    {{ form_widget(form.price, {'attr': {'class': 'form-control', 'placeholder': 'Ex: 9.99'}}) }}
-                                    <div class="invalid-feedback">
-                                        {{ form_errors(form.price) }}
-                                    </div>
-                                </div>
-                            </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.description) }}
+                        {{ form_widget(form.description) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.price) }}
+                        <div class="input-group">
+                            {{ form_widget(form.price) }}
+                            <span class="input-group-text">€ / mois</span>
                         </div>
-
-                        <div class="mb-3">
-                            <div class="form-group">
-                                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
-                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Décrivez les avantages de ce service...'}}) }}
-                                <div class="invalid-feedback">
-                                    {{ form_errors(form.description) }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    {{ form_label(form.isActive, 'Statut', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
-                                    {{ form_widget(form.isActive, {'attr': {'class': 'form-select'}}) }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    {{ form_label(form.imageFile, 'Image (optionnelle)', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
-                                    {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
-                                    <small class="text-muted">Formats: JPG, PNG, GIF • Max: 2MB</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ path('admin_services') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Annuler
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i> Créer le service
-                            </button>
-                        </div>
-
+                        {{ form_errors(form.price) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.imageFile) }}
+                        {{ form_widget(form.imageFile) }}
+                        {{ form_errors(form.imageFile) }}
+                        <small class="text-muted">Formats acceptés : JPEG, PNG, GIF (max 2MB)</small>
+                    </div>
+                    
+                    <div class="mb-3 form-check form-switch">
+                        {{ form_widget(form.isActive) }}
+                        {{ form_label(form.isActive) }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ path('admin_services') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Créer le service
+                        </button>
+                    </div>
+                    
                     {{ form_end(form) }}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Aperçu de l'image avant upload
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('#service_imageFile_file');
+    const imagePreview = document.createElement('img');
+    imagePreview.className = 'image-preview img-thumbnail';
+    
+    if (imageInput) {
+        imageInput.parentNode.appendChild(imagePreview);
+        
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

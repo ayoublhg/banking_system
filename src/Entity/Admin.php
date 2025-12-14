@@ -5,21 +5,16 @@ namespace App\Entity;
 use App\Repository\AdminRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=AdminRepository::class)
- */
+#[ORM\Entity(repositoryClass: AdminRepository::class)]
 class Admin extends User
 {
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $department;
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $department = null;
 
     public function __construct()
     {
         parent::__construct();
         $this->roles = ['ROLE_ADMIN'];
-
     }
 
     public function getDepartment(): ?string
@@ -33,7 +28,6 @@ class Admin extends User
         return $this;
     }
 
-    
     public function getNom(): string
     {
         return $this->getLastName();
@@ -56,7 +50,6 @@ class Admin extends User
         return $this;
     }
 
-    
     public function __toString(): string
     {
         return $this->getFirstName() . ' ' . $this->getLastName();

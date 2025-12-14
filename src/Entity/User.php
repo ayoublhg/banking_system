@@ -9,77 +9,59 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="users")
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorColumn(name="type", type="string")
- * @ORM\DiscriminatorMap({"admin" = "Admin", "client" = "Client"})
- * @UniqueEntity(fields={"email"}, message="Un compte existe déjà avec cet email.")
- */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: 'users')]  // Éviter le mot réservé 'user'
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'type', type: 'string')]
+#[ORM\DiscriminatorMap([
+    'admin' => Admin::class,
+    'client' => Client::class
+])]
+#[UniqueEntity(fields: ['email'], message: 'Un compte existe déjà avec cet email.')]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    protected $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    protected ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\NotBlank
-     * @Assert\Email
-     */
-    protected $email;
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    protected ?string $email = null;
 
-    /**
-     * @ORM\Column(type="json")
-     */
-    protected $roles = [];
+    #[ORM\Column(type: 'json')]
+    protected array $roles = [];
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    protected $password;
+    #[ORM\Column(type: 'string')]
+    protected ?string $password = null;
 
-    /**
-     * @ORM\Column(type="string", length=100)
-     * @Assert\NotBlank
-     * @Assert\Length(min=2, max=100)
-     */
-    protected $firstName;
+    #[ORM\Column(type: 'string', length: 100)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 100)]
+    protected ?string $firstName = null;
 
-    /**
-     * @ORM\Column(type="string", length=100)
-     * @Assert\NotBlank
-     * @Assert\Length(min=2, max=100)
-     */
-    protected $lastName;
+    #[ORM\Column(type: 'string', length: 100)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 100)]
+    protected ?string $lastName = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    protected $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    protected ?\DateTimeInterface $createdAt = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $isVerified = false;
+    #[ORM\Column(type: 'boolean')]
+    protected bool $isVerified = false;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     */
-    protected $resetToken;
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    protected ?string $resetToken = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    protected $resetTokenExpiresAt;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    protected ?\DateTimeInterface $resetTokenExpiresAt = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->roles = ['ROLE_USER'];
     }
 
     public function getId(): ?int
@@ -106,6 +88,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
+        // Garantir que ROLE_USER est toujours présent
         $roles[] = 'ROLE_USER';
         return array_unique($roles);
     }
@@ -160,7 +143,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function setCreatedAt(\DateTimeInterface $createdAt): self
-{
+    {
         $this->createdAt = $createdAt;
         return $this;
     }
@@ -212,13 +195,5 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getSalt(): ?string
     {
         return null;
-    }
-
-    // Méthode pour obtenir le type (utilise le DiscriminatorColumn)
-    public function getType(): string
-    {
-        $reflection = new \ReflectionClass($this);
-        $shortName = $reflection->getShortName();
-        return strtolower($shortName);
     }
 }

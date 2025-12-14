@@ -4,56 +4,39 @@ namespace App\Entity;
 
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @ORM\Entity(repositoryClass=TransactionRepository::class)
- * @ORM\Table(name="bank_transaction")
- */
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Table(name: 'bank_transaction')]
 class Transaction
 {
     public const TYPE_DEPOSIT = 'deposit';
     public const TYPE_WITHDRAWAL = 'withdrawal';
     public const TYPE_TRANSFER = 'transfer';
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
-    private $type;
+    #[ORM\Column(type: 'string', length: 50)]
+    private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="decimal", precision=15, scale=2)
-     */
-    private $amount;
+    #[ORM\Column(type: 'decimal', precision: 15, scale: 2)]
+    private string $amount;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $description;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $createdAt = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Account::class, inversedBy="transactions")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $account;
+    #[ORM\ManyToOne(targetEntity: Account::class, inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Account $account = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="transactions")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $client;
+    #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Client $client = null;
 
     public function __construct()
     {

@@ -3,73 +3,70 @@
 namespace App\Entity;
 
 use App\Repository\ServiceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-/**
- * @ORM\Entity(repositoryClass=ServiceRepository::class)
- * @Vich\Uploadable
- */
+#[ORM\Entity(repositoryClass: ServiceRepository::class)]
+#[ORM\Table(name: 'services')]
+#[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Service
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
-     * @Assert\Length(min=3, max=255)
-     */
-    private $name;
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 3, max: 255)]
+    private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="text")
-     * @Assert\NotBlank
-     */
-    private $description;
+    #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank]
+    private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="decimal", precision=10, scale=2)
-     * @Assert\NotBlank
-     * @Assert\PositiveOrZero
-     */
-    private $price;
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[Assert\NotBlank]
+    #[Assert\PositiveOrZero]
+    private ?string $price = '0.00';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $image;
+    private ?string $image = null;
 
-    /**
-     * @Vich\UploadableField(mapping="service_images", fileNameProperty="image")
-     * @Assert\Image(maxSize="2M", mimeTypes={"image/jpeg", "image/png", "image/gif"})
-     */
-    private $imageFile;
+    #[Vich\UploadableField(mapping: 'service_images', fileNameProperty: 'image')]
+    #[Assert\File(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/gif'],
+        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG, GIF)'
+    )]
+    private ?File $imageFile = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $isActive = true; // CHANGÉ : boolean au lieu de string
+    #[ORM\Column(type: 'boolean')]
+    private bool $isActive = true;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $createdAt = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $updatedAt;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\ManyToMany(targetEntity: Client::class, mappedBy: 'subscribedServices')]
+    private Collection $clients;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+        $this->clients = new ArrayCollection();
+    }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
         $this->updatedAt = new \DateTime();
     }
 
@@ -111,15 +108,14 @@ class Service
         return $this;
     }
 
-    public function getImage(): ?string
+    // Getters et setters pour VichUploader
+    public function setImageFile(?File $imageFile = null): void
     {
-        return $this->image;
-    }
+        $this->imageFile = $imageFile;
 
-    public function setImage(?string $image): self
-    {
-        $this->image = $image;
-        return $this;
+        if (null !== $imageFile) {
+            $this->updatedAt = new \DateTime();
+        }
     }
 
     public function getImageFile(): ?File
@@ -127,30 +123,35 @@ class Service
         return $this->imageFile;
     }
 
-    public function setImageFile(?File $imageFile = null): void
+    public function setImage(?string $image): void
     {
-        $this->imageFile = $imageFile;
-        if (null !== $imageFile) {
-            $this->updatedAt = new \DateTimeImmutable();
-        }
+        $this->image = $image;
     }
 
-    // CORRIGEZ CETTE MÉTHODE (isActive() au lieu de getIsActive())
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->image ? '/uploads/services/' . $this->image : null;
+    }
+
     public function isActive(): bool
     {
-        return (bool) $this->isActive;
-    }
-
-    // ET AJOUTEZ CETTE MÉTHODE POUR TWIG
-    public function getIsActive(): bool
-    {
-        return (bool) $this->isActive;
+        return $this->isActive;
     }
 
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
         return $this;
+    }
+
+    public function getIsActive(): bool
+    {
+        return $this->isActive;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface
@@ -175,10 +176,33 @@ class Service
         return $this;
     }
 
+    /**
+     * @return Collection<int, Client>
+     */
+    public function getClients(): Collection
+    {
+        return $this->clients;
+    }
+
+    public function addClient(Client $client): self
+    {
+        if (!$this->clients->contains($client)) {
+            $this->clients->add($client);
+            $client->addSubscribedService($this);
+        }
+        return $this;
+    }
+
+    public function removeClient(Client $client): self
+    {
+        if ($this->clients->removeElement($client)) {
+            $client->removeSubscribedService($this);
+        }
+        return $this;
+    }
+
     public function __toString(): string
     {
         return $this->name ?? '';
     }
-
-
 }

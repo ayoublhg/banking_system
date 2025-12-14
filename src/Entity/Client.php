@@ -8,32 +8,21 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-/**
- * @ORM\Entity(repositoryClass=ClientRepository::class)
- * @UniqueEntity(fields={"email"}, message="Un compte existe déjà avec cet email.")
- */
+#[ORM\Entity(repositoryClass: ClientRepository::class)]
+#[UniqueEntity(fields: ["email"], message: "Un compte existe déjà avec cet email.")]
 class Client extends User
 {
-    /**
-     * @ORM\OneToMany(mappedBy="client", targetEntity=Account::class)
-     */
+    #[ORM\OneToMany(mappedBy: "client", targetEntity: Account::class)]
     private $accounts;
 
-    /**
-     * @ORM\OneToMany(mappedBy="client", targetEntity=Transaction::class)
-     */
+    #[ORM\OneToMany(mappedBy: "client", targetEntity: Transaction::class)]
     private $transactions;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Service::class)
-     * @ORM\JoinTable(name="client_services",
-     *      joinColumns={@ORM\JoinColumn(name="client_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="service_id", referencedColumnName="id")}
-     * )
-     */
+    #[ORM\ManyToMany(targetEntity: Service::class, inversedBy: 'clients')]
+    #[ORM\JoinTable(name: "client_services")]
+    #[ORM\JoinColumn(name: "client_id", referencedColumnName: "id")]
+    #[ORM\InverseJoinColumn(name: "service_id", referencedColumnName: "id")]
     private $subscribedServices;
-
-
 
     public function __construct()
     {
@@ -56,23 +45,16 @@ class Client extends User
     {
         if (!$this->subscribedServices->contains($service)) {
             $this->subscribedServices[] = $service;
+            $service->addClient($this);
         }
-        return $this;
-    }
-    public function getAccountType(): string
-    {
-        return $this->type;
-    }
-
-    public function setAccountType(string $type): self
-    {
-        $this->type = $type;
         return $this;
     }
 
     public function removeSubscribedService(Service $service): self
     {
-        $this->subscribedServices->removeElement($service);
+        if ($this->subscribedServices->removeElement($service)) {
+            $service->removeClient($this);
+        }
         return $this;
     }
 
@@ -134,30 +116,31 @@ class Client extends User
         }
         return $this;
     }
+
     public function getPrenom(): string
-{
-    return $this->getFirstName();
-}
+    {
+        return $this->getFirstName();
+    }
 
-public function getNom(): string
-{
-    return $this->getLastName();
-}
-public function setPrenom(string $prenom): self
-{
-    $this->setFirstName($prenom);
-    return $this;
-}
+    public function getNom(): string
+    {
+        return $this->getLastName();
+    }
 
-public function setNom(string $nom): self
-{
-    $this->setLastName($nom);
-    return $this;
-}
+    public function setPrenom(string $prenom): self
+    {
+        $this->setFirstName($prenom);
+        return $this;
+    }
+
+    public function setNom(string $nom): self
+    {
+        $this->setLastName($nom);
+        return $this;
+    }
 
     public function __toString(): string
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
-
 }

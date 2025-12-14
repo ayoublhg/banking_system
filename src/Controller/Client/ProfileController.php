@@ -50,94 +50,59 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/change-password', name: 'client_change_password', methods: ['GET', 'POST'])]
-    public function changePassword(
-      Request $request,
-      UserPasswordHasherInterface $passwordHasher,
-      EntityManagerInterface $em
-    ): Response {
-      /** @var Client $client */
-      $client = $this->getUser();
-      
-      if (!$client) {
-          $this->addFlash('error', 'Vous devez être connecté.');
-          return $this->redirectToRoute('app_login');
-      }
-      
-      $form = $this->createForm(ChangePasswordType::class);
-      $form->handleRequest($request);
+#[Route('/change-password', name: 'client_change_password', methods: ['GET', 'POST'])]
+public function changePassword(
+    Request $request,
+    UserPasswordHasherInterface $passwordHasher,
+    EntityManagerInterface $em
+): Response {
+    /** @var Client $client */
+    $client = $this->getUser();
+    
+    if (!$client) {
+        $this->addFlash('error', 'Vous devez être connecté.');
+        return $this->redirectToRoute('app_login');
+    }
+    
+    $form = $this->createForm(ChangePasswordType::class);
+    $form->handleRequest($request);
 
-      if ($form->isSubmitted() && $form->isValid()) {
-         $data = $form->getData();
+    if ($form->isSubmitted() && $form->isValid()) {
+        $data = $form->getData();
 
         // 1. Récupérer le mot de passe actuel du formulaire
         $currentPassword = $data['currentPassword'] ?? null;
-        
-        // DEBUG: Activez cette ligne pour voir les données RÉELLES
-        // dd([
-        //     'DEBUG_INFO' => 'ANALYSE DU PROBLÈME',
-        //     'currentPassword_from_form' => $currentPassword,
-        //     'currentPassword_length' => strlen($currentPassword ?? ''),
-        //     'user_email' => $client->getEmail(),
-        //     'user_password_hash' => $client->getPassword(),
-        //     'hash_length' => strlen($client->getPassword() ?? ''),
-        //     'hash_prefix' => substr($client->getPassword() ?? '', 0, 20),
-        //     'password_verify_test' => password_verify($currentPassword ?? '', $client->getPassword() ?? ''),
-        //     'form_data_all' => $data,
-        // ]);
+        $newPasswordData = $data['plainPassword'] ?? null; // ← CORRIGÉ ICI
         
         if (empty($currentPassword)) {
             $this->addFlash('error', 'Le mot de passe actuel est requis.');
             return $this->redirectToRoute('client_change_password');
         }
         
-        // 2. VÉRIFICATION ULTIME - 3 méthodes différentes
-        $passwordValid = false;
-        $userPasswordHash = $client->getPassword();
-        
-        // Méthode 1: password_verify (standard PHP)
-        if ($userPasswordHash && password_verify($currentPassword, $userPasswordHash)) {
-            $passwordValid = true;
-        }
-        // Méthode 2: Comparaison directe si le hash est en texte clair (cas de test)
-        elseif ($userPasswordHash && $currentPassword === $userPasswordHash) {
-            $passwordValid = true;
-            // ⚠️ Si ça passe ici, c'est que le mot de passe est en texte clair dans la DB!
-        }
-        // Méthode 3: UserPasswordHasher (au cas où)
-        elseif ($passwordHasher->isPasswordValid($client, $currentPassword)) {
-            $passwordValid = true;
-        }
-        
-        if (!$passwordValid) {
-            $this->addFlash('error', 'Le mot de passe actuel est incorrect.');
-            
-            // INFO: Vous pouvez activer ce debug pour voir pourquoi ça échoue
-            // $this->addFlash('info', 'Hash dans DB: ' . substr($userPasswordHash, 0, 30) . '...');
-            
-            return $this->redirectToRoute('client_change_password');
-        }
-        
-        // 3. Récupérer le nouveau mot de passe
-        $newPassword = $data['newPassword'] ?? null;
-        if (empty($newPassword)) {
+        if (!$newPasswordData || empty($newPasswordData)) {
             $this->addFlash('error', 'Le nouveau mot de passe est requis.');
             return $this->redirectToRoute('client_change_password');
         }
         
-        // 4. Vérifier que le nouveau est différent de l'ancien
-        if (password_verify($newPassword, $userPasswordHash)) {
+        // 2. Vérifier l'ancien mot de passe
+        if (!$passwordHasher->isPasswordValid($client, $currentPassword)) {
+            $this->addFlash('error', 'Le mot de passe actuel est incorrect.');
+            return $this->redirectToRoute('client_change_password');
+        }
+        
+        // 3. Vérifier que le nouveau est différent de l'ancien
+        if ($passwordHasher->isPasswordValid($client, $newPasswordData)) {
             $this->addFlash('error', 'Le nouveau mot de passe doit être différent de l\'ancien.');
             return $this->redirectToRoute('client_change_password');
         }
         
-        // 5. Mettre à jour le mot de passe
-        $hashedPassword = $passwordHasher->hashPassword($client, $newPassword);
+        // 4. Mettre à jour le mot de passe
+        $hashedPassword = $passwordHasher->hashPassword($client, $newPasswordData);
         $client->setPassword($hashedPassword);
         
         $em->flush();
 
-        // 6. Déconnecter
+        // 5. Déconnecter
         $this->addFlash('success', 'Votre mot de passe a été modifié avec succès. Veuillez vous reconnecter.');
         return $this->redirectToRoute('app_logout');
     }

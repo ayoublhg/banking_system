@@ -122,3 +122,28 @@ client_service_redirect:
     defaults:
         route: client_services
         permanent: true
+
+admin_account_show:
+    path: /admin/accounts/{id}
+    controller: App\Controller\Admin\AccountsController::show
+    methods: GET
+
+admin_account_edit:
+    path: /admin/accounts/{id}/edit
+    controller: App\Controller\Admin\AccountsController::edit
+    methods: [GET, POST]
+
+admin_account_toggle_status:
+    path: /admin/accounts/{id}/toggle-status
+    controller: App\Controller\Admin\AccountsController::toggleStatus
+    methods: POST
+
+admin_account_delete:
+    path: /admin/accounts/{id}/delete
+    controller: App\Controller\Admin\AccountsController::delete
+    methods: POST
+
+admin_account_new:
+    path: /admin/accounts/client/{clientId}/new
+    controller: App\Controller\Admin\AccountsController::new
+    methods: [GET, POST]  

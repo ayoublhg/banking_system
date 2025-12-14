@@ -104,12 +104,19 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
+                        <!-- Lien vers les transactions -->
+                        <a href="{{ path('admin_account_transactions', {'id': account.id}) }}" 
+                           class="btn btn-outline-info text-start">
+                            <i class="fas fa-history me-2"></i> Voir les transactions ({{ account.transactions|length }})
+                        </a>
+                        
+                        <!-- Modifier le compte -->
                         <a href="{{ path('admin_account_edit', {'id': account.id}) }}" 
                            class="btn btn-outline-primary text-start">
                             <i class="fas fa-edit me-2"></i> Modifier le compte
                         </a>
                         
-                        <!-- Toggle Status Form -->
+                        <!-- Toggle Status Form (toujours visible) -->
                         <form method="post" 
                               action="{{ path('admin_account_toggle_status', {'id': account.id}) }}"
                               onsubmit="return confirm('{{ account.isActive ? 'Désactiver' : 'Activer' }} ce compte ?')">
@@ -120,16 +127,36 @@
                             </button>
                         </form>
                         
-                        <!-- Delete Form -->
-                        <form method="post" 
-                              action="{{ path('admin_account_delete', {'id': account.id}) }}"
-                              onsubmit="return confirm('Supprimer définitivement ce compte ?')">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ account.id) }}">
-                            <button type="submit" class="btn btn-outline-danger text-start w-100"
-                                    {% if account.balance != 0 %}disabled{% endif %}>
-                                <i class="fas fa-trash me-2"></i> Supprimer le compte
-                            </button>
-                        </form>
+                        <!-- Gestion de la suppression selon les conditions -->
+                        {% if account.balance == 0 %}
+                            {% if account.transactions|length == 0 %}
+                                <!-- Peut supprimer -->
+                                <form method="post" 
+                                      action="{{ path('admin_account_delete', {'id': account.id}) }}"
+                                      onsubmit="return confirm('Supprimer définitivement ce compte ?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ account.id) }}">
+                                    <button type="submit" class="btn btn-outline-danger text-start w-100">
+                                        <i class="fas fa-trash me-2"></i> Supprimer le compte
+                                    </button>
+                                </form>
+                            {% else %}
+                                <!-- A des transactions -->
+                                <div class="alert alert-warning mb-0 p-3">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <strong>{{ account.transactions|length }} transaction(s)</strong> empêchent la suppression.
+                                    <a href="{{ path('admin_account_transactions', {'id': account.id}) }}" class="alert-link">
+                                        Gérer les transactions
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <!-- Solde non nul -->
+                            <div class="alert alert-secondary mb-0 p-3">
+                                <i class="fas fa-lock me-2"></i>
+                                Solde: <strong>{{ account.balance|number_format(2, ',', ' ') }} €</strong><br>
+                                La suppression n'est possible qu'avec un solde à 0.
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -178,7 +205,7 @@
                         </div>
                         {% if account.transactions|length > 10 %}
                             <div class="text-center mt-3">
-                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ path('admin_account_transactions', {'id': account.id}) }}" class="btn btn-outline-primary btn-sm">
                                     Voir toutes les transactions ({{ account.transactions|length }})
                                 </a>
                             </div>
@@ -188,6 +215,9 @@
                             <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">Aucune transaction</h5>
                             <p class="text-muted">Ce compte n'a pas encore effectué de transactions.</p>
+                            <a href="{{ path('admin_accounts') }}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i> Retour aux comptes
+                            </a>
                         </div>
                     {% endif %}
                 </div>

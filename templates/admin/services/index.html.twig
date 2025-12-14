@@ -23,6 +23,13 @@
         </div>
     {% endfor %}
 
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             {% if services|length > 0 %}
@@ -62,16 +69,20 @@
                                 <td>{{ service.createdAt|date('d/m/Y') }}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ path('admin_service_show', {'id': service.id}) }}" 
+                                           class="btn btn-outline-info" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <a href="{{ path('admin_service_edit', {'id': service.id}) }}" 
-                                           class="btn btn-outline-primary">
+                                           class="btn btn-outline-primary" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <form method="post" 
                                               action="{{ path('admin_service_delete', {'id': service.id}) }}" 
-                                              onsubmit="return confirm('Supprimer ce service ?');"
+                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service ?');"
                                               class="d-inline">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
-                                            <button type="submit" class="btn btn-outline-danger">
+                                            <button type="submit" class="btn btn-outline-danger" title="Supprimer">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

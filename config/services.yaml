@@ -33,3 +33,9 @@ services:
             - ['%kernel.project_dir%/src/Entity']
         tags:
             - { name: 'doctrine.orm.metadata_driver' }
+    App\Service\FinancialReportService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $accountRepository: '@App\Repository\AccountRepository'
+            $transactionRepository: '@App\Repository\TransactionRepository'
+            $serviceRepository: '@App\Repository\ServiceRepository'

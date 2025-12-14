@@ -141,45 +141,6 @@ class AccountsController extends AbstractController
         ]);
     }
 
-    #[Route('/change-password', name: 'client_change_password', methods: ['GET', 'POST'])]
-    public function changePassword(
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $em
-    ): Response {
-        /** @var \App\Entity\Client $client */
-        $client = $this->getUser();
-        
-        $form = $this->createForm(ChangePasswordType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $currentPassword = $form->get('currentPassword')->getData();
-            $newPassword = $form->get('plainPassword')->getData();
-            
-            if (!$passwordHasher->isPasswordValid($client, $currentPassword)) {
-                $this->addFlash('error', 'Le mot de passe actuel est incorrect.');
-                return $this->redirectToRoute('client_change_password');
-            }
-            
-            if ($passwordHasher->isPasswordValid($client, $newPassword)) {
-                $this->addFlash('error', 'Le nouveau mot de passe doit être différent de l\'ancien.');
-                return $this->redirectToRoute('client_change_password');
-            }
-            
-            $hashedPassword = $passwordHasher->hashPassword($client, $newPassword);
-            $client->setPassword($hashedPassword);
-            
-            $em->flush();
-
-            $this->addFlash('success', 'Votre mot de passe a été modifié avec succès. Veuillez vous reconnecter.');
-            return $this->redirectToRoute('app_logout');
-        }
-
-        return $this->render('client/profile/change_password.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
 
     private function generateAccountNumber(): string
     {
