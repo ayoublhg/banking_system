@@ -188,8 +188,39 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/clients/{id}', name: 'admin_client_show', methods: ['GET'])] 
-    public function showClient(Client $client): Response
-    {
-        return $this->render('admin/clients/show.html.twig', ['client' => $client]);
+public function showClient(int $id, EntityManagerInterface $entityManager): Response
+{
+    // Récupère le client par son ID
+    $client = $entityManager->getRepository(Client::class)->find($id);
+    
+    // Vérifie si le client existe
+    if (!$client) {
+        throw $this->createNotFoundException('Client non trouvé');
     }
+    
+    // Récupère les comptes du client avec la relation
+    $accounts = $entityManager->getRepository(\App\Entity\Account::class)
+        ->createQueryBuilder('a')
+        ->where('a.client = :client')
+        ->setParameter('client', $client)
+        ->orderBy('a.createdAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+    
+    // Récupère les transactions du client
+    $transactions = $entityManager->getRepository(\App\Entity\Transaction::class)
+        ->createQueryBuilder('t')
+        ->where('t.client = :client')
+        ->setParameter('client', $client)
+        ->orderBy('t.createdAt', 'DESC')
+        ->setMaxResults(10)
+        ->getQuery()
+        ->getResult();
+    
+    return $this->render('admin/clients/show.html.twig', [
+        'client' => $client,
+        'accounts' => $accounts,
+        'transactions' => $transactions,
+    ]);
+}
 }

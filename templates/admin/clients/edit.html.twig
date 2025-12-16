@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Client • Banking System{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ path('admin_dashboard') }}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('admin_clients') }}">Clients</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('admin_client_show', {'id': client.id}) }}">{{ client.email }}</a>
+            </li>
+            <li class="breadcrumb-item active">Modifier</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Modifier le client : {{ client.firstName }} {{ client.lastName }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {# Token CSRF pour la sécurité #}
+                        <input type="hidden" name="_token" value="{{ csrf_token('edit-client' ~ client.id) }}">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">Prénom</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="firstName" 
+                                       name="firstName" 
+                                       value="{{ client.firstName }}"
+                                       required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Nom</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="lastName" 
+                                       name="lastName" 
+                                       value="{{ client.lastName }}"
+                                       required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{ client.email }}"
+                                   required>
+                        </div>
+                        
+                        {% if client.phone is defined %}
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Téléphone</label>
+                            <input type="tel" 
+                                   class="form-control" 
+                                   id="phone" 
+                                   name="phone" 
+                                   value="{{ client.phone ?? '' }}"
+                                   placeholder="Optionnel">
+                        </div>
+                        {% endif %}
+                        
+                        {% if attribute(client, 'isActive') is defined %}
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       id="isActive" 
+                                       name="isActive" 
+                                       value="1"
+                                       {{ client.isActive ? 'checked' : '' }}>
+                                <label class="form-check-label" for="isActive">
+                                    Compte actif
+                                </label>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ path('admin_client_show', {'id': client.id}) }}" 
+                               class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {# Section danger #}
+            <div class="card border-danger border-0 shadow-sm mt-4">
+                <div class="card-header bg-white text-danger py-3">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Zone de danger</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Attention :</strong> Les modifications sont irréversibles.
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ path('admin_client_show', {'id': client.id}) }}" 
+                           class="btn btn-outline-secondary">
+                            Retour aux détails du client
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

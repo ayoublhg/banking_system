@@ -147,3 +147,42 @@ admin_account_new:
     path: /admin/accounts/client/{clientId}/new
     controller: App\Controller\Admin\AccountsController::new
     methods: [GET, POST]  
+
+admin_financial_reports:
+    path: /admin/financial-reports
+    controller: App\Controller\Admin\FinancialReportController::index
+    methods: GET
+
+admin_financial_reports_export:
+    path: /admin/financial-reports/export
+    controller: App\Controller\Admin\FinancialReportController::export
+    methods: GET
+
+admin_export_financial_report:
+    path: /admin/export/financial-report
+    controller: App\Controller\Admin\ExportController::exportFinancialReport
+    methods: GET
+
+# Client actions
+admin_client_toggle_status:
+    path: /admin/clients/{id}/toggle-status
+    controller: App\Controller\Admin\ClientController::toggleStatus
+    methods: POST
+    requirements:
+        id: '\d+'
+
+admin_client_reset_password:
+    path: /admin/clients/{id}/reset-password
+    controller: App\Controller\Admin\ClientsController::resetPassword
+    methods: POST
+    requirements:
+        id: '\d+'
+
+# Account creation
+admin_account_create:
+    path: /admin/accounts/create/{clientId}
+    controller: App\Controller\Admin\AccountsController::create
+    methods: ['GET', 'POST']
+    requirements:
+        clientId: '\d+'
+

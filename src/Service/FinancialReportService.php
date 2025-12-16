@@ -174,85 +174,89 @@ class FinancialReportService
     }
 
     /**
-     * Rapport financier détaillé
-     */
-    public function getDetailedReport(\DateTimeInterface $startDate = null, \DateTimeInterface $endDate = null): array
-    {
-        if (!$startDate) {
-            $startDate = new \DateTime('-1 month');
-        }
-        if (!$endDate) {
-            $endDate = new \DateTime();
-        }
-
-        try {
-            // Transactions par période
-            $transactionsQuery = $this->transactionRepository->createQueryBuilder('t')
-                ->select([
-                    'COUNT(t.id) as total_transactions',
-                    'SUM(CASE WHEN t.type = :deposit THEN t.amount ELSE 0 END) as deposits',
-                    'SUM(CASE WHEN t.type = :withdrawal THEN t.amount ELSE 0 END) as withdrawals',
-                ])
-                ->where('t.createdAt BETWEEN :start AND :end')
-                ->setParameters([
-                    'deposit' => 'deposit', // Chaîne directement
-                    'withdrawal' => 'withdrawal', // Chaîne directement
-                    'start' => $startDate,
-                    'end' => $endDate
-                ])
-                ->getQuery()
-                ->getSingleResult();
-
-            // Assurez-vous que les clés existent
-            $deposits = isset($transactionsQuery['deposits']) ? (float) $transactionsQuery['deposits'] : 0.0;
-            $withdrawals = isset($transactionsQuery['withdrawals']) ? (float) $transactionsQuery['withdrawals'] : 0.0;
-            $totalTransactions = isset($transactionsQuery['total_transactions']) ? (int) $transactionsQuery['total_transactions'] : 0;
-
-            // Nouveaux comptes
-            $newAccounts = (int) $this->accountRepository->createQueryBuilder('a')
-                ->select('COUNT(a.id)')
-                ->where('a.createdAt BETWEEN :start AND :end')
-                ->setParameter('start', $startDate)
-                ->setParameter('end', $endDate)
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            // Revenus des services
-            $serviceRevenue = $this->getTotalMonthlyServiceRevenue();
-
-            return [
-                'period' => [
-                    'start' => $startDate,
-                    'end' => $endDate
-                ],
-                'transactions' => [
-                    'total_transactions' => $totalTransactions,
-                    'deposits' => $deposits,
-                    'withdrawals' => $withdrawals,
-                ],
-                'new_accounts' => $newAccounts,
-                'service_revenue' => $serviceRevenue,
-                'net_flow' => $deposits - $withdrawals
-            ];
-            
-        } catch (\Exception $e) {
-            // Retourne un rapport vide en cas d'erreur
-            return [
-                'period' => [
-                    'start' => $startDate,
-                    'end' => $endDate
-                ],
-                'transactions' => [
-                    'total_transactions' => 0,
-                    'deposits' => 0.0,
-                    'withdrawals' => 0.0,
-                ],
-                'new_accounts' => 0,
-                'service_revenue' => 0.0,
-                'net_flow' => 0.0
-            ];
-        }
+ * Rapport financier détaillé
+ */
+public function getDetailedReport(\DateTimeInterface $startDate = null, \DateTimeInterface $endDate = null): array
+{
+    if (!$startDate) {
+        $startDate = (new \DateTime())->modify('-1 month');
     }
+    if (!$endDate) {
+        $endDate = new \DateTime();
+    }
+
+    try {
+        // Transactions par période - CORRIGÉ
+        $transactionsQuery = $this->transactionRepository->createQueryBuilder('t')
+            ->select([
+                'COUNT(t.id) as total_transactions',
+                'SUM(CASE WHEN t.type = :deposit THEN t.amount ELSE 0 END) as deposits',
+                'SUM(CASE WHEN t.type = :withdrawal THEN t.amount ELSE 0 END) as withdrawals',
+            ])
+            ->where('t.createdAt >= :start')
+            ->andWhere('t.createdAt <= :end')
+            ->setParameters([
+                'deposit' => 'deposit',
+                'withdrawal' => 'withdrawal',
+                'start' => $startDate->format('Y-m-d 00:00:00'),
+                'end' => $endDate->format('Y-m-d 23:59:59')
+            ])
+            ->getQuery()
+            ->getSingleResult();
+
+        // Assurez-vous que les clés existent
+        $deposits = $transactionsQuery['deposits'] ? (float) $transactionsQuery['deposits'] : 0.0;
+        $withdrawals = $transactionsQuery['withdrawals'] ? (float) $transactionsQuery['withdrawals'] : 0.0;
+        $totalTransactions = (int) $transactionsQuery['total_transactions'];
+
+        // Nouveaux comptes
+        $newAccounts = (int) $this->accountRepository->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->where('a.createdAt >= :start')
+            ->andWhere('a.createdAt <= :end')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Revenus des services
+        $serviceRevenue = $this->getTotalMonthlyServiceRevenue();
+
+        return [
+            'period' => [
+                'start' => $startDate,
+                'end' => $endDate
+            ],
+            'transactions' => [
+                'total_transactions' => $totalTransactions,
+                'deposits' => $deposits,
+                'withdrawals' => $withdrawals,
+            ],
+            'new_accounts' => $newAccounts,
+            'service_revenue' => $serviceRevenue,
+            'net_flow' => $deposits - $withdrawals
+        ];
+        
+    } catch (\Exception $e) {
+        // Pour debug, décommentez la ligne suivante
+        // dd($e->getMessage());
+        
+        return [
+            'period' => [
+                'start' => $startDate,
+                'end' => $endDate
+            ],
+            'transactions' => [
+                'total_transactions' => 0,
+                'deposits' => 0.0,
+                'withdrawals' => 0.0,
+            ],
+            'new_accounts' => 0,
+            'service_revenue' => 0.0,
+            'net_flow' => 0.0
+        ];
+    }
+}
 
     /**
      * Statistiques quotidiennes des transactions (optionnel)

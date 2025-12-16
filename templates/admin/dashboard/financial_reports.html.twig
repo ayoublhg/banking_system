@@ -293,7 +293,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="exportForm" method="get" action="{{ path('admin_financial_reports_export') }}">
+                <form id="exportForm" method="get" action="{{ path('admin_export_financial_report') }}">
                     <input type="hidden" name="start_date" value="{{ startDate|date('Y-m-d') }}">
                     <input type="hidden" name="end_date" value="{{ endDate|date('Y-m-d') }}">
                     
@@ -301,16 +301,12 @@
                         <label class="form-label">Format d'export</label>
                         <select class="form-select" name="format">
                             <option value="csv">CSV (Excel)</option>
-                            <option value="pdf" disabled>PDF (Bientôt disponible)</option>
-                            <option value="json" disabled>JSON (Bientôt disponible)</option>
                         </select>
                     </div>
                     
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" name="include_details" id="includeDetails" checked>
-                        <label class="form-check-label" for="includeDetails">
-                            Inclure les détails des transactions
-                        </label>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Le rapport sera exporté au format CSV compatible avec Microsoft Excel.
                     </div>
                 </form>
             </div>
