@@ -52,6 +52,10 @@
             margin-bottom: 20px;
             opacity: 0.9;
         }
+        /* Style spécifique pour admin */
+        .admin-hero-buttons .btn {
+            opacity: 0.7;
+        }
     </style>
 {% endblock %}
 
@@ -72,15 +76,24 @@
                         Manage your finances securely from anywhere. Open accounts, transfer money, 
                         and track expenses with our state-of-the-art banking platform.
                     </p>
-                    <div class="d-flex gap-3 justify-content-center">
+                    <div class="d-flex gap-3 justify-content-center {% if is_granted('ROLE_ADMIN') %}admin-hero-buttons{% endif %}">
                         {% if app.user %}
-                            <a href="{{ path('client_accounts') }}" class="btn btn-light btn-lg px-4">
-                                <i class="fas fa-wallet me-2"></i> My Accounts
-                            </a>
-                            <a href="{{ path('client_transactions_index') }}" class="btn btn-outline-light btn-lg px-4">
-                                <i class="fas fa-exchange-alt me-2"></i> Transactions
-                            </a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <!-- Boutons masqués pour admin -->
+                                <a href="{{ path('admin_dashboard') }}" class="btn btn-light btn-lg px-4">
+                                    <i class="fas fa-tachometer-alt me-2"></i> Admin Dashboard
+                                </a>
+                            {% else %}
+                                <!-- Boutons normaux pour les utilisateurs -->
+                                <a href="{{ path('client_accounts') }}" class="btn btn-light btn-lg px-4">
+                                    <i class="fas fa-wallet me-2"></i> My Accounts
+                                </a>
+                                <a href="{{ path('client_transactions_index') }}" class="btn btn-outline-light btn-lg px-4">
+                                    <i class="fas fa-exchange-alt me-2"></i> Transactions
+                                </a>
+                            {% endif %}
                         {% else %}
+                            <!-- Boutons pour visiteurs non connectés -->
                             <a href="{{ path('app_register') }}" class="btn btn-light btn-lg px-4">
                                 <i class="fas fa-user-plus me-2"></i> Open Account
                             </a>
@@ -231,9 +244,7 @@
                             </div>
                         </div>
                         <div class="card-footer bg-transparent border-top-0">
-                            <a href="{{ path('app_login') }}" class="btn btn-outline-primary w-100">
-                                Learn More <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
+
                         </div>
                     </div>
                 </div>
@@ -256,35 +267,8 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="py-5">
-        <div class="container">
-            <div class="card bg-primary text-white border-0 shadow-lg">
-                <div class="card-body p-5">
-                    <div class="row align-items-center">
-                        <div class="col-lg-8">
-                            <h2 class="display-6 fw-bold mb-3">Ready to Get Started?</h2>
-                            <p class="lead opacity-75 mb-0">
-                                Join thousands of satisfied customers who trust us with their finances.
-                                Open your account in minutes, completely online.
-                            </p>
-                        </div>
-                        <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                            {% if app.user %}
-                                <a href="{{ path('client_accounts') }}" class="btn btn-light btn-lg px-4">
-                                    <i class="fas fa-rocket me-2"></i> Dashboard
-                                </a>
-                            {% else %}
-                                <a href="{{ path('app_register') }}" class="btn btn-light btn-lg px-4">
-                                    <i class="fas fa-user-plus me-2"></i> Sign Up Free
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- SUPPRESSION COMPLÈTE DE LA SECTION CTA -->
+    {# La section CTA a été supprimée comme demandé #}
 {% endblock %}
 
 {% block javascripts %}
